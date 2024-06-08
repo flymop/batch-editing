@@ -45,6 +45,7 @@ from aqt.qt import (
     QKeySequence,
     QLabel,
     QPlainTextEdit,
+    QLineEdit,
     QPushButton,
     QShortcut,
     Qt,
@@ -103,6 +104,19 @@ class BatchEditDialog(QDialog):
         field_hbox.addWidget(self.field_selector)
         field_hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
+        replace_field_label = QLabel("Find (regex):")
+        self.replace_text =  QLineEdit()
+
+        find_and_replace_button = QPushButton("Find and Replace")
+        find_and_replace_button.setToolTip("Find and replace existing field content")
+        find_and_replace_button.clicked.connect(lambda _: self.on_confirm(EditMode.FIND_AND_REPLACE))
+
+        replace_hbox = QHBoxLayout()
+        replace_hbox.addWidget(replace_field_label)
+        replace_hbox.addWidget(self.replace_text)
+        replace_hbox.addWidget(find_and_replace_button)
+        replace_hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
         button_box = QDialogButtonBox(Qt.Orientation.Horizontal, self)
         add_after_button = cast(
             QPushButton,
@@ -147,6 +161,7 @@ class BatchEditDialog(QDialog):
         vbox_main.addLayout(top_hbox)
         vbox_main.addWidget(self.text_edit)
         vbox_main.addLayout(field_hbox)
+        vbox_main.addLayout(replace_hbox)
         vbox_main.addLayout(bottom_hbox)
         self.setLayout(vbox_main)
         self.text_edit.setFocus()
@@ -222,12 +237,20 @@ class BatchEditDialog(QDialog):
         note_ids = self._nids
         field_name = self.field_selector.currentText()
         text = self.text_edit.toPlainText()
+        find_regex = self.replace_text.text()
         is_html = self.checkbox_html.isChecked()
         if mode == EditMode.REPLACE:
             q = (
                 "This will replace the contents of the <b>'{0}'</b> field "
                 "in <b>{1} selected note(s)</b>. Proceed?"
             ).format(field_name, len(note_ids))
+            if not askUser(q, parent=self):
+                return
+        if mode == EditMode.FIND_AND_REPLACE:
+            q = (
+                "This will find and replace all contents of the <b>'{0}'</b> field "
+                "that matches <b>{1}</b> in <b>{2} selected note(s)</b>. Proceed?"
+            ).format(field_name, find_regex, len(note_ids))
             if not askUser(q, parent=self):
                 return
 
@@ -241,6 +264,7 @@ class BatchEditDialog(QDialog):
             note_ids=note_ids,
             field_name=field_name,
             html=text,
+            find_regex=find_regex,
             is_html=is_html,
             on_complete=on_edits_complete,
         )

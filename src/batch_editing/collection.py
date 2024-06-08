@@ -31,6 +31,7 @@
 
 from enum import Enum
 from typing import TYPE_CHECKING, Sequence, Union
+import re
 
 if TYPE_CHECKING:
     from anki.collection import Collection
@@ -41,6 +42,7 @@ class EditMode(Enum):
     ADD_AFTER = 0
     ADD_BEFORE = 1
     REPLACE = 2
+    FIND_AND_REPLACE = 3
 
 
 def edit_notes(
@@ -48,6 +50,7 @@ def edit_notes(
     note_ids: Sequence["NoteId"],
     mode: EditMode,
     field_name: str,
+    find_regex: str,
     html: str,
     is_html: bool,
 ) -> Sequence["Note"]:
@@ -79,6 +82,8 @@ def edit_notes(
                 note[field_name] = html + spacer + content
             elif mode == EditMode.REPLACE:
                 note[field_name] = html
+            elif mode == EditMode.FIND_AND_REPLACE:
+                note[field_name] = re.sub(find_regex, html, content)
             else:
                 print(f"Unsupported edit mode {mode}")
                 continue

@@ -66,6 +66,7 @@ With [Anki add-on builder](https://github.com/glutanimate/anki-addon-builder/) i
 
     git clone https://github.com/glutanimate/batch-editing.git
     cd batch-editing
+    aab ui
     aab build
 
 For more information on the build process please refer to [`aab`'s documentation](https://github.com/glutanimate/anki-addon-builder/#usage).

@@ -48,6 +48,7 @@ def batch_edit_notes(
     note_ids: Sequence["NoteId"],
     field_name: str,
     html: str,
+    find_regex: str,
     is_html: bool,
     on_complete: Optional[Callable[[int], None]] = None,
 ):
@@ -63,6 +64,7 @@ def batch_edit_notes(
             mode=mode,
             field_name=field_name,
             html=html,
+            find_regex=find_regex,
             is_html=is_html,
         )
 
